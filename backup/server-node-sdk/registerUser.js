@@ -22,34 +22,26 @@ async function main() {
         }
 
         // Admin check
-        const adminIdentity = await wallet.get('hospitalAdmin');
+        const adminIdentity = await wallet.get('admin');
         if (!adminIdentity) {
-            console.log('An identity for the admin user "hospitalAdmin" does not exist in the wallet. Run enrollAdmin.js first.');
+            console.log('An identity for the admin user "admin" does not exist in the wallet. Run enrollAdmin.js first.');
             return;
         }
 
         // Admin context create karein
         const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
-        const adminUser = await provider.getUserContext(adminIdentity, 'hospitalAdmin');
+        const adminUser = await provider.getUserContext(adminIdentity, 'admin');
 
         // Naye user ko register aur enroll karein
         const secret = await ca.register({
             affiliation: 'org1.department1',
-            enrollmentID: 'Hospital01',
-            role: 'client',
-            attrs: [
-                { name: 'role', value: 'hospital', ecert: true },
-                {name: 'uuid', value: 'Hospital01', ecert: true}
-            ]
+            enrollmentID: 'bobby',
+            role: 'client'
         }, adminUser);
 
         const enrollment = await ca.enroll({
-            enrollmentID: 'Hospital01',
-            enrollmentSecret: secret,
-            attr_reqs: [
-                {name: 'role', optional: false },
-                {name: 'uuid', optional: false }
-            ]
+            enrollmentID: 'bobby',
+            enrollmentSecret: secret
         });
 
         const x509Identity = {
@@ -60,8 +52,8 @@ async function main() {
             mspId: 'Org1MSP',
             type: 'X.509',
         };
-        await wallet.put('Hospital01', x509Identity);
-        console.log('Successfully registered and enrolled user "Hospital01" and imported it into the wallet');
+        await wallet.put('bobby', x509Identity);
+        console.log('Successfully registered and enrolled user "bobby" and imported it into the wallet');
 
     } catch (error) {
         console.error(`Failed to register user "bobby": ${error}`);
